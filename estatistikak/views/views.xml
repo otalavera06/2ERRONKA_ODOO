@@ -1,0 +1,211 @@
+<odoo>
+  <data>
+
+    <!-- 1. ACTIONS -->
+    <record model="ir.actions.act_window" id="deskontuak_action_graph">
+      <field name="name">Deskontuen Grafikoa</field>
+      <field name="res_model">estatistikak.deskontuak</field>
+      <field name="view_mode">graph</field>
+      <field name="target">new</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="eskariak_action_graph">
+      <field name="name">Eskarien Grafikoa</field>
+      <field name="res_model">estatistikak.eskariak</field>
+      <field name="view_mode">graph</field>
+      <field name="target">new</field>
+    </record>
+
+    <!-- 2. FORMS -->
+    <record id="estatistika_orokorrak_form" model="ir.ui.view">
+      <field name="name">estatistika.orokorrak.form</field>
+      <field name="model">estatistikak.estatistika_orokorrak</field>
+      <field name="arch" type="xml">
+        <form create="0" edit="0">
+          <header>
+            <button name="%(eskariak_action_graph)d" string="Ikusi Grafikoa" type="action" class="btn-primary"/>
+          </header>
+          <sheet>
+            <div class="oe_title">
+              <h1>
+                <field name="name" readonly="1"/>
+              </h1>
+            </div>
+            <group>
+              <group string="Eskarien Laburpena">
+                <field name="total_eskariak"/>
+                <field name="total_zenbatekoa"/>
+                <field name="batez_besteko_zenbatekoa"/>
+                <field name="bezero_kopurua"/>
+              </group>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record id="estatistika_espezifikoak_form" model="ir.ui.view">
+      <field name="name">estatistika.espezifikoak.form</field>
+      <field name="model">estatistikak.estatistika_espezifikoak</field>
+      <field name="arch" type="xml">
+        <form create="0" edit="0">
+          <header>
+            <button name="%(eskariak_action_graph)d" string="Ikusi Grafikoa" type="action" class="btn-primary"/>
+          </header>
+          <sheet>
+            <div class="oe_title">
+              <h1>
+                <field name="name" readonly="1"/>
+              </h1>
+            </div>
+            <group string="Eskarien Estatistika Espezifikoa">
+              <group>
+                <field name="total_eskariak"/>
+                <field name="egun_ohikoena" style="font-size: 24px; color: #7c7bad; font-weight: bold;"/>
+              </group>
+              <group>
+                <field name="eskari_kopurua_egun_horretan"/>
+              </group>
+            </group>
+            <div class="alert alert-info" role="alert" style="margin-top: 20px;">
+              <strong>Emaitza:</strong> Hilabeteko <strong><field name="egun_ohikoena"/></strong>. eguna da eskaera gehien jaso dituen eguna.
+            </div>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <!-- 3. VIEWS -->
+    <record model="ir.ui.view" id="eskariak_tree">
+      <field name="name">eskariak.tree</field>
+      <field name="model">estatistikak.eskariak</field>
+      <field name="arch" type="xml">
+        <tree editable="bottom">
+          <field name="name"/>
+          <field name="data"/>
+          <field name="bezeroa"/>
+          <field name="zenbatekoa"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="deskontuak_tree">
+      <field name="name">deskontuak.tree</field>
+      <field name="model">estatistikak.deskontuak</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="name"/>
+          <field name="balioa"/>
+          <field name="aktibo"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="deskontuak_graph">
+      <field name="name">deskontuak.graph</field>
+      <field name="model">estatistikak.deskontuak</field>
+      <field name="arch" type="xml">
+        <graph string="Deskontuen Banaketa" type="pie">
+          <field name="name" type="row"/>
+          <field name="balioa" type="measure"/>
+        </graph>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="eskariak_graph">
+      <field name="name">eskariak.graph</field>
+      <field name="model">estatistikak.eskariak</field>
+      <field name="arch" type="xml">
+        <graph string="Eskarien Zenbatekoa" type="bar">
+          <field name="name" type="row"/>
+          <field name="zenbatekoa" type="measure"/>
+        </graph>
+      </field>
+    </record>
+
+    <record id="deskontuak_form" model="ir.ui.view">
+      <field name="name">deskontuak.form</field>
+      <field name="model">estatistikak.deskontuak</field>
+      <field name="arch" type="xml">
+        <form>
+          <sheet>
+            <group>
+              <field name="name"/>
+              <field name="balioa"/>
+              <field name="aktibo"/>
+              <field name="hasiera_data"/>
+              <field name="amaiera_data"/>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record id="eskariak_search" model="ir.ui.view">
+      <field name="name">eskariak.search</field>
+      <field name="model">estatistikak.eskariak</field>
+      <field name="arch" type="xml">
+        <search>
+          <field name="name"/>
+          <field name="bezeroa"/>
+          <group expand="0" string="Taldekatu">
+            <filter string="Hilabeteko Eguna" name="group_by_day" context="{'group_by': 'day_of_month'}"/>
+            <filter string="Data" name="group_by_date" context="{'group_by': 'data'}"/>
+          </group>
+        </search>
+      </field>
+    </record>
+
+    <!-- 4. SERVER ACTIONS -->
+    <record model="ir.actions.server" id="action_estatistika_orokorrak">
+      <field name="name">Estatistika Orokorrak</field>
+      <field name="model_id" ref="model_estatistikak_estatistika_orokorrak"/>
+      <field name="state">code</field>
+      <field name="code">
+        action = model.action_show_stats()
+      </field>
+    </record>
+
+    <record model="ir.actions.server" id="action_estatistika_espezifikoak">
+      <field name="name">Estatistika Espezifikoak</field>
+      <field name="model_id" ref="model_estatistikak_estatistika_espezifikoak"/>
+      <field name="state">code</field>
+      <field name="code">
+        action = model.action_show_specific_stats()
+      </field>
+    </record>
+
+    <!-- 5. WINDOW ACTIONS -->
+    <record model="ir.actions.act_window" id="deskontuak_action">
+      <field name="name">Deskontuak</field>
+      <field name="res_model">estatistikak.deskontuak</field>
+      <field name="view_mode">tree,graph,form</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="eskariak_action">
+      <field name="name">Eskariak</field>
+      <field name="res_model">estatistikak.eskariak</field>
+      <field name="view_mode">tree,graph,form</field>
+    </record>
+
+    <!-- 6. MENUS -->
+    <menuitem name="Estatistikak" id="estatistikak.menu_root"/>
+
+    <menuitem name="Estatistika Orokorrak" id="estatistikak.menu_1"
+              parent="estatistikak.menu_root"
+              action="action_estatistika_orokorrak"/>
+
+    <menuitem name="Estatistika Espezifikoak" id="estatistikak.menu_2"
+              parent="estatistikak.menu_root"
+              action="action_estatistika_espezifikoak"/>
+
+    <menuitem name="Eskariak" id="menu_eskariak"
+              parent="estatistikak.menu_root"
+              action="eskariak_action"/>
+
+    <menuitem name="Deskontuak" id="menu_deskontuak"
+              parent="estatistikak.menu_root"
+              action="deskontuak_action"/>
+
+  </data>
+</odoo>

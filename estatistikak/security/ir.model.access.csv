@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_estatistikak_estatistika_orokorrak,estatistikak_estatistika_orokorrak,model_estatistikak_estatistika_orokorrak,base.group_user,1,1,1,1
+access_estatistikak_estatistika_espezifikoak,estatistikak_estatistika_espezifikoak,model_estatistikak_estatistika_espezifikoak,base.group_user,1,1,1,1
+access_estatistikak_deskontuak,estatistikak_deskontuak,model_estatistikak_deskontuak,base.group_user,1,1,1,1
+access_estatistikak_eskariak,estatistikak_eskariak,model_estatistikak_eskariak,base.group_user,1,1,1,1
