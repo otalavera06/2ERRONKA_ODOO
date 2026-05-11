@@ -8,7 +8,12 @@ class DeskontuakAPI(http.Controller):
 
     @http.route('/api/check_discount', type='http', auth='none', methods=['POST'], csrf=False)
     def check_discount(self, **post):
-        payload = request.httprequest.get_json(silent=True) or {}
+        try:
+            body = request.httprequest.data.decode('utf-8') if request.httprequest.data else '{}'
+            payload = json.loads(body) if body else {}
+        except (TypeError, ValueError):
+            payload = {}
+
         params = payload.get('params') if isinstance(payload.get('params'), dict) else payload
         code = params.get('code')
         if not code:
