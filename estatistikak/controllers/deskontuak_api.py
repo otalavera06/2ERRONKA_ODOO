@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import json
 
-from odoo import api, http, fields, registry, SUPERUSER_ID
+from odoo import api, http, fields, SUPERUSER_ID
+from odoo.modules.registry import Registry
 from odoo.http import request
 
 class DeskontuakAPI(http.Controller):
@@ -20,7 +21,7 @@ class DeskontuakAPI(http.Controller):
             return self._json_response({'status': 'error', 'message': 'Kodea falta da'})
 
         db_name = params.get('db') or 'entregaodoo'
-        with registry(db_name).cursor() as cr:
+        with Registry(db_name).cursor() as cr:
             env = api.Environment(cr, SUPERUSER_ID, {})
             discount = env['estatistikak.deskontuak'].sudo().search([
                 ('name', '=', code),
