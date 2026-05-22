@@ -32,6 +32,8 @@ class grafiko_datuak(models.Model):
     period_type = fields.Selection([
         ('month', 'Urteko Hilabeteak'),
         ('day', 'Hilabeteko Egunak'),
+        ('product_kind', 'Produktuak eta Platerak'),
+        ('table', 'Mahaiak'),
     ], string="Grafiko Mota", required=True)
     year_of_date = fields.Integer(string="Urtea", required=True)
     month_number = fields.Integer(string="Hilabete Zenbakia")
@@ -39,6 +41,7 @@ class grafiko_datuak(models.Model):
     month_label = fields.Selection(MONTH_SELECTION, string="Urteko Hilabeteak")
     day_label = fields.Selection(DAY_SELECTION, string="Hilabeteko Egunak")
     eskari_kopurua = fields.Integer(string="Eskari Kopurua")
+    sequence = fields.Integer(string="Ordena")
 
     @api.model
     def refresh_year(self, year):
@@ -81,7 +84,44 @@ class grafiko_datuak(models.Model):
                     'month_label': '%02d' % month,
                     'day_label': '%02d' % day,
                     'eskari_kopurua': day_counts[(month, day)],
+                    'sequence': day,
                 })
+
+    @api.model
+    def refresh_general(self):
+        eskariak = EskaerakMySQLClient(self.env).get_eskaerak_with_totals()
+        produktu_kopurua = sum(self._int_value(eskari.get('produktu_kopurua')) for eskari in eskariak)
+        plater_kopurua = sum(self._int_value(eskari.get('plater_kopurua')) for eskari in eskariak)
+        mahai_counts = Counter(
+            eskari.get('mahaiak_id')
+            for eskari in eskariak
+            if eskari.get('mahaiak_id')
+        )
+
+        self.search([('period_type', 'in', ['product_kind', 'table'])]).unlink()
+        self.create({
+            'name': 'Produktuak',
+            'period_type': 'product_kind',
+            'year_of_date': 0,
+            'eskari_kopurua': produktu_kopurua,
+            'sequence': 1,
+        })
+        self.create({
+            'name': 'Platerak',
+            'period_type': 'product_kind',
+            'year_of_date': 0,
+            'eskari_kopurua': plater_kopurua,
+            'sequence': 2,
+        })
+
+        for index, mahaia_id in enumerate(sorted(mahai_counts), start=1):
+            self.create({
+                'name': 'Mahaia %s' % mahaia_id,
+                'period_type': 'table',
+                'year_of_date': 0,
+                'eskari_kopurua': mahai_counts[mahaia_id],
+                'sequence': index,
+            })
 
     def _date_parts(self, value):
         if not value:
@@ -97,3 +137,9 @@ class grafiko_datuak(models.Model):
 
     def _month_name(self, month):
         return dict(self.MONTH_SELECTION).get('%02d' % month, '')
+
+    def _int_value(self, value):
+        try:
+            return int(value or 0)
+        except (TypeError, ValueError):
+            return 0

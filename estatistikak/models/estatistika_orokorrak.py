@@ -27,36 +27,29 @@ class estatistika_orokorrak(models.TransientModel):
             'target': 'current',
         }
 
-    def action_show_graph(self):
+    def action_show_product_kind_graph(self):
         self.env['estatistikak.eskariak'].refresh_from_mysql()
-        return self.env.ref('estatistikak.eskariak_action_graph').read()[0]
-    def action_show_month_graph(self):
-        self.env['estatistikak.eskariak'].refresh_from_mysql()
-        return self._graph_action('estatistikak.eskariak_month_action_graph', 'Urteko Hilabeteak')
+        return self._graph_action('estatistikak.orokorrak_product_kind_action_graph', 'Produktuak eta Platerak', 'product_kind')
 
-    def action_show_day_graph(self):
+    def action_show_table_graph(self):
         self.env['estatistikak.eskariak'].refresh_from_mysql()
-        return self._graph_action('estatistikak.eskariak_day_action_graph', 'Hilabeteko Egunak')
+        return self._graph_action('estatistikak.orokorrak_table_action_graph', 'Mahaiak', 'table')
 
     def action_show_graph(self):
-        return self.action_show_month_graph()
+        return self.action_show_product_kind_graph()
 
-    def _graph_action(self, xml_id, name):
-        today = fields.Date.today()
-        self.env['estatistikak.grafiko_datuak'].refresh_year(today.year)
+    def _graph_action(self, xml_id, name, period_type):
+        self.env['estatistikak.grafiko_datuak'].refresh_general()
         action = self.env.ref(xml_id).read()[0]
-        period_type = 'day' if xml_id.endswith('day_action_graph') else 'month'
-        action['domain'] = [('period_type', '=', period_type), ('year_of_date', '=', today.year)]
-        action['context'] = {
-            'search_default_month_%02d' % today.month: 1,
-        } if period_type == 'day' else {}
-        action['name'] = '%s - %s' % (name, today.year)
+        action['domain'] = [('period_type', '=', period_type)]
+        action['context'] = {}
+        action['name'] = name
         return action
 
     def action_download_report(self):
         return {
             'type': 'ir.actions.act_url',
-            'url': '/estatistikak/report/orokorrak.csv',
+            'url': '/estatistikak/report/orokorrak.pdf',
             'target': 'self',
         }
 

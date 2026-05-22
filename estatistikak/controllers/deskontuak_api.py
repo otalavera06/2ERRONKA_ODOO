@@ -20,7 +20,7 @@ class DeskontuakAPI(http.Controller):
         if not code:
             return self._json_response({'status': 'error', 'message': 'Kodea falta da'})
 
-        db_name = params.get('db') or 'entregaodoo'
+        db_name = params.get('db') or request.session.db or 'entregaodoo'
         with Registry(db_name).cursor() as cr:
             env = api.Environment(cr, SUPERUSER_ID, {})
             discount = env['estatistikak.deskontuak'].sudo().search([

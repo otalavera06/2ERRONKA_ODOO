@@ -19,16 +19,11 @@ except ImportError:
 class EskaerakMySQLClient:
     """MySQL client for the restaurant statistics used by the Odoo module."""
 
-    # DEFAULT_HOST = 'localhost'
-    # DEFAULT_PORT = 3306
-    # DEFAULT_DATABASE = 'erronka2026'
-    # DEFAULT_USER = 'root'
-    # DEFAULT_PASSWORD = 'abc123ABC'
     DEFAULT_HOST = 'host.docker.internal'
     DEFAULT_PORT = 3306
     DEFAULT_DATABASE = 'erronka2026'
     DEFAULT_USER = 'root'
-    DEFAULT_PASSWORD = '1mg2024'
+    DEFAULT_PASSWORD = 'abc123ABC'
 
     def __init__(self, env):
         self.env = env
@@ -39,7 +34,6 @@ class EskaerakMySQLClient:
                 z.id,
                 z.data,
                 z.mahaiak_id,
-                COALESCE(f.prezio_totala, z.prezioTotala, e.prezio_totala, 0) AS zenbatekoa
                 COALESCE(e.prezio_totala, z.prezioTotala, f.prezio_totala, 0) AS zenbatekoa,
                 COALESCE(e.produktu_kopurua, 0) AS produktu_kopurua,
                 COALESCE(e.plater_kopurua, 0) AS plater_kopurua
@@ -50,23 +44,20 @@ class EskaerakMySQLClient:
                 GROUP BY zerbitzua_id
             ) f ON f.zerbitzua_id = z.id
             LEFT JOIN (
-                SELECT zerbitzua_id, SUM(prezioa) AS prezio_totala
-                FROM eskaerak
-                GROUP BY zerbitzua_id
                 SELECT
-                    e.zerbitzua_id,
+                    es.zerbitzua_id,
                     SUM(
                         CASE
-                            WHEN e.produktua_id = 1 THEN COALESCE(pl.prezioa, e.prezioa, 0)
-                            ELSE COALESCE(pr.prezioa, e.prezioa, 0)
+                            WHEN es.produktua_id = 1 THEN COALESCE(pl.prezioa, es.prezioa, 0)
+                            ELSE COALESCE(pr.prezioa, es.prezioa, 0)
                         END
                     ) AS prezio_totala,
-                    SUM(CASE WHEN e.produktua_id = 1 THEN 0 ELSE 1 END) AS produktu_kopurua,
-                    SUM(CASE WHEN e.produktua_id = 1 THEN 1 ELSE 0 END) AS plater_kopurua
-                FROM eskaerak e
-                LEFT JOIN produktuak pr ON pr.id = e.produktua_id
-                LEFT JOIN platerak pl ON e.produktua_id = 1 AND pl.izena = e.izena
-                GROUP BY e.zerbitzua_id
+                    SUM(CASE WHEN es.produktua_id = 1 THEN 0 ELSE 1 END) AS produktu_kopurua,
+                    SUM(CASE WHEN es.produktua_id = 1 THEN 1 ELSE 0 END) AS plater_kopurua
+                FROM eskaerak es
+                LEFT JOIN produktuak pr ON pr.id = es.produktua_id
+                LEFT JOIN platerak pl ON es.produktua_id = 1 AND pl.izena = es.izena
+                GROUP BY es.zerbitzua_id
             ) e ON e.zerbitzua_id = z.id
             ORDER BY z.data DESC, z.id DESC
         """

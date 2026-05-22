@@ -27,9 +27,6 @@ class estatistika_espezifikoak(models.TransientModel):
             'target': 'current',
         }
 
-    def action_show_graph(self):
-        self.env['estatistikak.eskariak'].refresh_from_mysql()
-        return self.env.ref('estatistikak.eskariak_action_graph').read()[0]
     def action_show_month_graph(self):
         self.env['estatistikak.eskariak'].refresh_from_mysql()
         action = self._graph_action('estatistikak.eskariak_month_action_graph', 'Urteko Hilabeteak')
@@ -58,7 +55,7 @@ class estatistika_espezifikoak(models.TransientModel):
     def action_download_report(self):
         return {
             'type': 'ir.actions.act_url',
-            'url': '/estatistikak/report/espezifikoak.csv',
+            'url': '/estatistikak/report/espezifikoak.pdf',
             'target': 'self',
         }
 
