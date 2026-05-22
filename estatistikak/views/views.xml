@@ -24,6 +24,9 @@
         <form create="0" edit="0">
           <header>
             <button name="action_show_graph" string="Ikusi Grafikoa" type="object" class="btn-primary"/>
+            <button name="action_show_month_graph" string="Urteko Hilabeteak" type="object" class="btn-primary"/>
+            <button name="action_show_day_graph" string="Hilabeteko Egunak" type="object" class="btn-primary"/>
+            <button name="action_download_report" string="Deskargatu Txostena" type="object"/>
           </header>
           <sheet>
             <div class="oe_title">
@@ -37,6 +40,8 @@
                 <field name="total_zenbatekoa"/>
                 <field name="batez_besteko_zenbatekoa"/>
                 <field name="bezero_kopurua"/>
+                <field name="produktu_kopurua"/>
+                <field name="plater_kopurua"/>
               </group>
             </group>
           </sheet>
@@ -51,6 +56,9 @@
         <form create="0" edit="0">
           <header>
             <button name="action_show_graph" string="Ikusi Grafikoa" type="object" class="btn-primary"/>
+            <button name="action_show_month_graph" string="Urteko Hilabeteak" type="object" class="btn-primary"/>
+            <button name="action_show_day_graph" string="Hilabeteko Egunak" type="object" class="btn-primary"/>
+            <button name="action_download_report" string="Deskargatu Txostena" type="object"/>
           </header>
           <sheet>
             <div class="oe_title">
@@ -62,6 +70,8 @@
               <group>
                 <field name="total_eskariak"/>
                 <field name="egun_ohikoena" style="font-size: 24px; color: #7c7bad; font-weight: bold;"/>
+                <field name="produktu_kopurua"/>
+                <field name="plater_kopurua"/>
               </group>
               <group>
                 <field name="eskari_kopurua_egun_horretan"/>
@@ -85,6 +95,16 @@
           <field name="data"/>
           <field name="bezeroa"/>
           <field name="zenbatekoa"/>
+          <field name="year_of_date"/>
+          <field name="month_of_year"/>
+          <field name="day_of_month"/>
+          <field name="month_label"/>
+          <field name="day_label"/>
+          <field name="eskari_kopurua" sum="Eskariak"/>
+          <field name="bezeroa"/>
+          <field name="zenbatekoa"/>
+          <field name="produktu_kopurua" sum="Produktuak"/>
+          <field name="plater_kopurua" sum="Platerak"/>
         </tree>
       </field>
     </record>
@@ -119,7 +139,180 @@
         <graph string="Eskarien Zenbatekoa" type="bar">
           <field name="name" type="row"/>
           <field name="zenbatekoa" type="measure"/>
+    <record model="ir.ui.view" id="eskariak_month_graph">
+      <field name="name">eskariak.month.graph</field>
+      <field name="model">estatistikak.eskariak</field>
+      <field name="arch" type="xml">
+        <graph string="Urteko Hilabeteak" type="bar">
+          <field name="month_label" type="row"/>
+          <field name="eskari_kopurua" type="measure"/>
         </graph>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="eskariak_day_graph">
+      <field name="name">eskariak.day.graph</field>
+      <field name="model">estatistikak.eskariak</field>
+      <field name="arch" type="xml">
+        <graph string="Hilabeteko Egunak" type="bar">
+          <field name="day_label" type="row"/>
+          <field name="eskari_kopurua" type="measure"/>
+        </graph>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="grafiko_datuak_month_graph">
+      <field name="name">grafiko.datuak.month.graph</field>
+      <field name="model">estatistikak.grafiko_datuak</field>
+      <field name="arch" type="xml">
+        <graph string="Urteko Hilabeteak" type="bar">
+          <field name="month_label" type="row"/>
+          <field name="eskari_kopurua" type="measure"/>
+        </graph>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="grafiko_datuak_day_graph">
+      <field name="name">grafiko.datuak.day.graph</field>
+      <field name="model">estatistikak.grafiko_datuak</field>
+      <field name="arch" type="xml">
+        <graph string="Hilabeteko Egunak" type="bar">
+          <field name="day_label" type="row"/>
+          <field name="eskari_kopurua" type="measure"/>
+        </graph>
+      </field>
+    </record>
+
+    <record id="grafiko_datuak_search" model="ir.ui.view">
+      <field name="name">grafiko.datuak.search</field>
+      <field name="model">estatistikak.grafiko_datuak</field>
+      <field name="arch" type="xml">
+        <search>
+          <field name="name"/>
+          <group expand="0" string="Taldekatu">
+            <filter string="Urteko Hilabeteak" name="group_by_month" context="{'group_by': 'month_label'}"/>
+            <filter string="Hilabeteko Egunak" name="group_by_day" context="{'group_by': 'day_label'}"/>
+          </group>
+          <separator string="Hilabetea"/>
+          <filter string="Urtarrila" name="month_01" domain="[('month_label', '=', '01')]"/>
+          <filter string="Otsaila" name="month_02" domain="[('month_label', '=', '02')]"/>
+          <filter string="Martxoa" name="month_03" domain="[('month_label', '=', '03')]"/>
+          <filter string="Apirila" name="month_04" domain="[('month_label', '=', '04')]"/>
+          <filter string="Maiatza" name="month_05" domain="[('month_label', '=', '05')]"/>
+          <filter string="Ekaina" name="month_06" domain="[('month_label', '=', '06')]"/>
+          <filter string="Uztaila" name="month_07" domain="[('month_label', '=', '07')]"/>
+          <filter string="Abuztua" name="month_08" domain="[('month_label', '=', '08')]"/>
+          <filter string="Iraila" name="month_09" domain="[('month_label', '=', '09')]"/>
+          <filter string="Urria" name="month_10" domain="[('month_label', '=', '10')]"/>
+          <filter string="Azaroa" name="month_11" domain="[('month_label', '=', '11')]"/>
+          <filter string="Abendua" name="month_12" domain="[('month_label', '=', '12')]"/>
+        </search>
+      </field>
+    </record>
+
+    <record model="ir.actions.act_window" id="eskariak_month_action_graph">
+      <field name="name">Urteko Hilabeteak</field>
+      <field name="res_model">estatistikak.grafiko_datuak</field>
+      <field name="view_mode">graph</field>
+      <field name="view_id" ref="grafiko_datuak_month_graph"/>
+      <field name="search_view_id" ref="grafiko_datuak_search"/>
+      <field name="domain">[('period_type', '=', 'month')]</field>
+      <field name="target">new</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="eskariak_day_action_graph">
+      <field name="name">Hilabeteko Egunak</field>
+      <field name="res_model">estatistikak.grafiko_datuak</field>
+      <field name="view_mode">graph</field>
+      <field name="view_id" ref="grafiko_datuak_day_graph"/>
+      <field name="search_view_id" ref="grafiko_datuak_search"/>
+      <field name="domain">[('period_type', '=', 'day')]</field>
+      <field name="target">new</field>
+    </record>
+
+    <record model="ir.ui.view" id="platerak_tree">
+      <field name="name">platerak.tree</field>
+      <field name="model">estatistikak.platerak</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="mysql_id"/>
+          <field name="name"/>
+          <field name="mota"/>
+          <field name="prezioa"/>
+          <field name="argazkia"/>
+        </tree>
+      </field>
+    </record>
+
+    <record id="platerak_form" model="ir.ui.view">
+      <field name="name">platerak.form</field>
+      <field name="model">estatistikak.platerak</field>
+      <field name="arch" type="xml">
+        <form>
+          <sheet>
+            <group>
+              <field name="mysql_id" readonly="1"/>
+              <field name="name"/>
+              <field name="mota"/>
+              <field name="prezioa"/>
+              <field name="argazkia"/>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record id="platerak_search" model="ir.ui.view">
+      <field name="name">platerak.search</field>
+      <field name="model">estatistikak.platerak</field>
+      <field name="arch" type="xml">
+        <search>
+          <field name="name"/>
+          <field name="mota"/>
+          <group expand="0" string="Taldekatu">
+            <filter string="Mota" name="group_by_mota" context="{'group_by': 'mota'}"/>
+          </group>
+        </search>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="langileak_tree">
+      <field name="name">langileak.tree</field>
+      <field name="model">estatistikak.langileak</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="mysql_id"/>
+          <field name="name"/>
+          <field name="abizena"/>
+          <field name="erabiltzailea"/>
+          <field name="email"/>
+          <field name="telefonoa"/>
+          <field name="baimena"/>
+          <field name="chat_baimena"/>
+        </tree>
+      </field>
+    </record>
+
+    <record id="langileak_form" model="ir.ui.view">
+      <field name="name">langileak.form</field>
+      <field name="model">estatistikak.langileak</field>
+      <field name="arch" type="xml">
+        <form>
+          <sheet>
+            <group>
+              <field name="mysql_id" readonly="1"/>
+              <field name="name"/>
+              <field name="abizena"/>
+              <field name="erabiltzailea"/>
+              <field name="pasahitza"/>
+              <field name="email"/>
+              <field name="telefonoa"/>
+              <field name="baimena"/>
+              <field name="mahaiak_id"/>
+              <field name="chat_baimena"/>
+            </group>
+          </sheet>
+        </form>
       </field>
     </record>
 
@@ -152,6 +345,24 @@
             <filter string="Hilabeteko Eguna" name="group_by_day" context="{'group_by': 'day_of_month'}"/>
             <filter string="Data" name="group_by_date" context="{'group_by': 'data'}"/>
           </group>
+            <filter string="Urtea" name="group_by_year" context="{'group_by': 'year_of_date'}"/>
+            <filter string="Urteko Hilabeteak" name="group_by_month" context="{'group_by': 'month_label'}"/>
+            <filter string="Hilabeteko Egunak" name="group_by_day" context="{'group_by': 'day_label'}"/>
+            <filter string="Data" name="group_by_date" context="{'group_by': 'data'}"/>
+          </group>
+          <separator string="Hilabetea"/>
+          <filter string="Urtarrila" name="month_01" domain="[('month_label', '=', '01')]"/>
+          <filter string="Otsaila" name="month_02" domain="[('month_label', '=', '02')]"/>
+          <filter string="Martxoa" name="month_03" domain="[('month_label', '=', '03')]"/>
+          <filter string="Apirila" name="month_04" domain="[('month_label', '=', '04')]"/>
+          <filter string="Maiatza" name="month_05" domain="[('month_label', '=', '05')]"/>
+          <filter string="Ekaina" name="month_06" domain="[('month_label', '=', '06')]"/>
+          <filter string="Uztaila" name="month_07" domain="[('month_label', '=', '07')]"/>
+          <filter string="Abuztua" name="month_08" domain="[('month_label', '=', '08')]"/>
+          <filter string="Iraila" name="month_09" domain="[('month_label', '=', '09')]"/>
+          <filter string="Urria" name="month_10" domain="[('month_label', '=', '10')]"/>
+          <filter string="Azaroa" name="month_11" domain="[('month_label', '=', '11')]"/>
+          <filter string="Abendua" name="month_12" domain="[('month_label', '=', '12')]"/>
         </search>
       </field>
     </record>
@@ -175,6 +386,24 @@
       </field>
     </record>
 
+    <record model="ir.actions.server" id="action_platerak">
+      <field name="name">Platerak</field>
+      <field name="model_id" ref="model_estatistikak_platerak"/>
+      <field name="state">code</field>
+      <field name="code">
+        action = model.action_show_platerak()
+      </field>
+    </record>
+
+    <record model="ir.actions.server" id="action_langileak">
+      <field name="name">Langileak</field>
+      <field name="model_id" ref="model_estatistikak_langileak"/>
+      <field name="state">code</field>
+      <field name="code">
+        action = model.action_show_langileak()
+      </field>
+    </record>
+
     <!-- 5. WINDOW ACTIONS -->
     <record model="ir.actions.act_window" id="deskontuak_action">
       <field name="name">Deskontuak</field>
@@ -186,6 +415,18 @@
       <field name="name">Eskariak</field>
       <field name="res_model">estatistikak.eskariak</field>
       <field name="view_mode">tree,graph,form</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="platerak_action">
+      <field name="name">Platerak</field>
+      <field name="res_model">estatistikak.platerak</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="langileak_action">
+      <field name="name">Langileak</field>
+      <field name="res_model">estatistikak.langileak</field>
+      <field name="view_mode">tree,form</field>
     </record>
 
     <!-- 6. MENUS -->
@@ -206,6 +447,14 @@
     <menuitem name="Deskontuak" id="menu_deskontuak"
               parent="estatistikak.menu_root"
               action="deskontuak_action"/>
+
+    <menuitem name="Platerak" id="menu_platerak"
+              parent="estatistikak.menu_root"
+              action="action_platerak"/>
+
+    <menuitem name="Langileak" id="menu_langileak"
+              parent="estatistikak.menu_root"
+              action="action_langileak"/>
 
   </data>
 </odoo>
